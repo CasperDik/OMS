@@ -94,9 +94,11 @@ def compute_goodness_of_fit(distribution, dist_params, data, bins):
         expected_frequency.append(expected_cdf_area)
 
     # control if sufficient expected frequencies in each bin
-    min_bin_size = 2
+    min_bin_size = 5
+    print(distribution)
     for i, bin in enumerate(expected_frequency):
         expected_in_bin = bin * data.shape[0]
+        print(expected_in_bin, i)
         if expected_in_bin < min_bin_size:
             raise Exception(f"less than {min_bin_size} expected observations in bin number: {i}")
 
@@ -122,7 +124,11 @@ def get_distribution_paramater_names(distribution):
 # activate the code
 if __name__ == '__main__':
     # load dataset
-    df = pd.read_excel("distribution_fitting.xlsx", converters={"throughput_time": float})  # version for .xlsx
+    # df = pd.read_excel("distribution_fitting.xlsx", converters={"throughput_time": float})  # version for .xlsx
+    df = pd.read_excel("ProcessingTimeStation2_Cleaned.xlsx", converters={"throughput_time": float})
+
+    # drop outliers? --> preferably no
+    # df = df[df["throughput_time"] < 8]
     data = df.loc[:, "throughput_time"]
 
     # describe data
@@ -137,14 +143,12 @@ if __name__ == '__main__':
     see: https://docs.scipy.org/doc/scipy/reference/stats.html for complete overview
     """
     distributions = [
-        st.uniform,
         st.expon,
         st.gamma,
         st.invgamma,
         st.lognorm,
         st.powerlognorm,
-        st.logistic,
-        st.norm
+        st.erlang,
     ]
 
     # specify bins
@@ -155,15 +159,17 @@ if __name__ == '__main__':
     bins (e.g. intervals are [1, 2, 3]) or specify the bin distribution manually (e.g. with the intervals [1, 1.5, 3])
     """
     bins = None
-    equally_distributed_bins = True
+    equally_distributed_bins = False
     # find min (max) data and round down (up) to nearest integer
     min_value = int(data.min())
     max_value = int(math.ceil(data.max()))
+
     if equally_distributed_bins:
-        number_of_bins = 10
+        number_of_bins = 14
         bins = np.linspace(min_value, max_value, number_of_bins + 1).tolist()
     else:
-        bins = [min_value, 6, 7, 8, 9, 10, 11, max_value]
+        bins = [min_value, 0.25, 0.40, 0.55, 0.75, 0.95, 1.15, 1.35, 1.55, 1.75, 1.95, 2.4, 3, 4.5, max_value]
+    print(bins)
 
     # make histogram of of empirical data
     y, x = np.histogram(data, bins=bins, density=True)

@@ -11,7 +11,7 @@ import scipy.stats as st
 import matplotlib.pyplot as plt
 
 # import data
-df = pd.read_excel("t_test_data.xlsx", converters={"run": int,
+df = pd.read_excel("Q3_noCRN.xlsx", converters={"run": int,
                                                    "throughput_time": float,
                                                    "dispatching_rule": str})
 
@@ -21,7 +21,7 @@ data_SPT = df[df["dispatching_rule"] == "SPT"]
 data_FCFS = df[df["dispatching_rule"] == "FCFS"]
 
 # do t-test and print result
-dependent = True
+dependent = False
 if dependent:
     result = st.ttest_rel(data_SPT.loc[:, "throughput_time"], data_FCFS.loc[:, "throughput_time"])
 else:
